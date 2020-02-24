@@ -1,0 +1,189 @@
+using System;
+namespace Linked_List
+{
+    class Node
+    {
+       public int data;
+       public Node link;
+        public Node()
+        {
+            data = default(int);
+            link = null;
+        }
+    public Node(int data,Node node=null)
+        {
+            this.data = data;
+            this.link = node;
+        }
+    }
+    class List
+    {
+        private Node head, tail;
+        private int size = 0;
+        public List()
+        {
+            head = tail = null;
+        }
+        public List(int [] arr)
+        {
+            Node node = new Node(data:arr[0],node:null);
+            head = tail = node;
+            for(int i=1;i<arr.Length;i++)
+            {
+                tail.link = new Node(data:arr[i], node:null);
+                tail = tail.link;
+            }
+            size = arr.Length;
+        }
+        public List( List  l)
+        {
+            if(l.head!=null)
+            {
+                Node cur, temp = l.head;
+                head = cur = new Node();
+                while(temp.link!=null)
+                {
+                    cur.data = temp.data;
+                    cur.link = new Node();
+                    temp = temp.link;
+                    cur = cur.link;
+                }
+                tail = cur;
+                tail.data= temp.data;
+                tail.link = null;
+                size = l.size;
+            }
+            else
+            {
+                tail = head = null;
+                size = 0;
+            }
+        }
+        public void push_back(int a)
+        {
+            if(head!=null)
+            {
+                tail.link = new Node(data:a, node:null);
+                tail = tail.link;
+            }
+            else
+                 tail = head = new Node(data: a, node: null);
+          size++;
+        }
+        public void push_front(int a)
+        {
+            if (head != null)
+            {
+                Node node = new Node(data: a, node: head);
+                head = node;
+            }
+            else
+                tail = head = new Node(data: a, node: null);
+            size++;
+        }
+        public void pop_back()
+        {
+            switch(size)
+            {
+                case 0: 
+                       return;
+                case 1: 
+                       tail = head = null;
+                       size = 0;
+                       break;
+                default:
+                      Node cur = head;
+                      while ((cur.link).link != null) cur = cur.link;
+                    tail = cur;
+                      size--;
+                      break;
+            }
+        }
+       public  void pop_front()
+        {
+            switch (size)
+            {
+                case 0:
+                    return;
+                case 1:
+                    tail = head = null;
+                    size = 0;
+                    break;
+                default:
+                    head = head.link;
+                    size--;
+                    break;        
+            }
+        }
+
+        public void reverse()
+        {
+            Node prev = null, next = null;
+            Node cur = head;
+            tail = head;
+            while(cur!=null)
+            {
+                next = cur.link;
+                cur.link = prev;
+                prev = cur;
+                cur = next;
+            }
+            head = prev;
+        }
+        public void show()
+        {
+            Node cur=head;
+            while (cur != null)
+            {
+                Console.Write(cur.data + " ");
+                cur = cur.link;
+            }
+            Console.WriteLine();
+        }
+        public static bool contains(List l1,List l2)
+        {
+            if (l2.head == null) return true;
+            if(l1.head==null) return false;
+            Node ptr1 = l1.head;
+            Node ptr2 = l2.head;
+            while(ptr1!=null)
+            {
+                while(ptr2!=null)
+                {
+                    if(ptr1==null) return false;
+                    else if (ptr1.data == ptr2.data)
+                    {
+                        ptr1 = ptr1.link;
+                        ptr2 = ptr2.link;
+                    }
+                    else break;
+                }
+                if(ptr2==null) return true;
+                ptr2 = l2.head;
+                ptr1 = ptr1.link;
+            }
+            return false;
+        }
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+
+            int[] arr = { 1, 2, 3, 4, 5 };
+            List l1 = new List(arr);
+            l1.show();
+            List l2=new List();
+            l2.push_front(2);
+            l2.push_front(1);
+            l2.push_back(3);
+            l2.push_back(4);
+            l2.show();
+            List cpy=new List(l1);
+            cpy.show();
+            cpy.reverse();
+            cpy.show();
+            Console.WriteLine(List.contains(l1, l2) ? "yes" : "no");
+        }
+    }
+}
