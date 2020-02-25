@@ -1,0 +1,229 @@
+using System;
+using System.Collections;
+
+namespace Matrix
+{
+    //using pointer to method (delagate)
+    delegate void del();
+
+    class Node
+    {
+        public int data;
+        public Node next;
+        public Node(int data,Node next)
+        {
+            this.data = data;
+            this.next = next;
+        }
+        public Node()
+        {
+            this.data = default(int);
+            this.next = null;
+        }
+    }
+    class Row
+    {
+        public Node node;
+        public Row link;
+        public Row()
+        {
+            node = null;
+            link = null;
+        }
+        public Node this[int index]
+        {
+            get
+            {
+                int count = 0;
+                Node cur = node;
+                while (count < index)
+                {
+                    count++;
+                    cur = cur.next;
+                }
+                return cur;
+            }
+        }
+        public static void display(Row r)
+        {
+            Node cur;
+            cur = r.node;
+            while(cur!=null)
+            {
+                Console.Write(cur.data + " ");
+                cur = cur.next;
+            }
+            Console.WriteLine();
+        }
+    }
+    class Matrix
+    {
+        private Row first;
+        private int row { get; set; }
+        private int col { get; set; }
+
+        public Matrix()//unparametrized constructor
+        {
+            first = null;
+            row = 0;
+            col = 0;
+        }
+        public Matrix(int[,] a) //converting constructor
+        {
+            Row cur;
+            cur = first = new Row();
+            for (int i = 1; i <= a.GetLength(0); i++)
+            {
+                Node temp;
+                temp = cur.node = new Node(a[i - 1, 0], null);
+                for (int j = 1; j < a.GetLength(1); j++)
+                {
+                    temp.next = new Node(a[i - 1, j], null);
+                    temp = temp.next;
+                }
+                cur.link = new Row();
+                cur = cur.link;
+            }
+            row = a.GetLength(0);
+            col = a.GetLength(1);
+        }
+        public Matrix(Matrix m) //copy constructor
+        {
+            if (m.first != null)
+            {
+                Row cur, temp = m.first;
+                cur = first = new Row();
+                while (temp.link != null)
+                {
+                    Node p1 = temp.node;
+                    Node p2 = cur.node = new Node();
+                    while (p1.next != null)
+                    {
+                        p2.data = p1.data;
+                        p2.next = new Node();
+                        p2 = p2.next;
+                        p1 = p1.next;
+                    }
+                    p2.data = p1.data;
+                    p2.next = null;
+                    temp = temp.link;
+                    cur.link = new Row();
+                    cur = cur.link;
+                }
+                cur.link = null;
+                row = m.row;
+                col = m.col;
+            }
+            else
+            {
+                first = null;
+                row = col = 0;
+            }
+        }
+        public Row this[int index] //indexator
+        {
+            get
+            {
+                if (index > row || index < 0) return null;
+                int count = 0;
+                Row cur = first;
+                while (count < index)
+                {
+                    count++;
+                    cur = cur.link;
+                }
+                return cur;
+            }
+        }
+        public void print()
+        {
+            /* method 1
+             Row cur = first;
+            while (cur != null)
+            {
+                Node temp = cur.node;
+                while (temp != null)
+                {
+                    Console.Write(temp.data + " ");
+                    temp = temp.next;
+                }
+                Console.Write("\n");
+                cur = cur.link;
+            }
+            */
+            /* method 2
+             for (int i = 0; i < row; i++)
+                Row.display(this[i]);
+            Console.Write("\n");
+            */
+
+            //method 3
+            foreach (var v in this)
+                Row.display((Row)v);
+
+            /* method 4
+             for(int i=0;i<row;i++)
+             {
+             for(int j=0j<col;j++)
+             Console.Write((this[i][j]).data+" ");
+             Console.WriteLine();
+             }
+             */
+        }
+        public IEnumerator GetEnumerator() //iterator
+        {
+            Row cur = first;
+            while (cur != null)
+            {
+                yield return cur;
+                cur = cur.link;
+            }
+        }
+        public void MainDiagonal()
+        {
+            if (row != col) return;
+            for (int i = 0; i < row; i++)
+                Console.Write(this[i][i].data+" ");
+            Console.WriteLine();
+
+        }
+        public void SecondaryDiagonal()
+        {
+            if (row != col) return;
+            for (int i = 0; i < row; i++)
+                Console.Write(this[i][row-i-1].data + " ");
+            Console.WriteLine();
+        }
+        public void transpose()
+        {
+            for(int i=0;i<row;i++)
+            for(int j=0;j<i;j++)
+                {
+                    int temp = this[i][j].data;
+                    this[i][j].data = this[j][i].data;
+                    this[j][i].data = temp;
+                }
+
+        }
+        }
+        class Program
+        {
+            static void Main(string[] args)
+            {
+                int[,] a = { { 1, 2, 3, 4 }, { 5, 6, 7, 8 }, { 9, 10, 11, 5 } ,{ 7, 10, 22, 23 } };
+                Matrix m = new Matrix(a);
+                del d = new del(m.print);
+                d();
+                Console.Write("\n");
+                Matrix cpy = new Matrix(m);
+                cpy.print();
+            // Row.display(cpy[0]);
+            Console.WriteLine(cpy[0][1].data);
+            cpy.MainDiagonal();
+            cpy.SecondaryDiagonal();
+            cpy.transpose();
+            Console.Write("\n");
+            cpy.print();
+            }
+        }
+    }
